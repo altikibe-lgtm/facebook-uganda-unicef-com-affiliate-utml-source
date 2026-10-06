@@ -585,6 +585,32 @@
         .ctx-selected .message-bubble-received {
             box-shadow: 0 0 0 2px rgba(8,102,255,0.35);
         }
+
+        /* ============================================================
+           MULTILINE MESSAGE PRESERVATION
+           Keeps line breaks, blank lines and indentation exactly as
+           the message was typed or sent. The bubble itself uses
+           normal wrapping (so no phantom blank lines from markup
+           whitespace), while the inner .msg-text span preserves the
+           author's own newlines and spacing.
+           ============================================================ */
+        .message-bubble-sent,
+        .message-bubble-received {
+            white-space: normal;
+        }
+
+        .message-bubble-sent .msg-text,
+        .message-bubble-received .msg-text {
+            white-space: pre-wrap;
+            display: block;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .quoted-chip,
+        .quoted-chip .quoted-text {
+            white-space: normal;
+        }
     </style>
 </head>
 <body>
@@ -935,6 +961,8 @@
             }
 
             const body = document.createElement('span');
+            // Preserves the author's own line breaks, blank lines and spacing.
+            body.className = 'msg-text';
             body.textContent = text;
             bubble.appendChild(body);
             return bubble;
