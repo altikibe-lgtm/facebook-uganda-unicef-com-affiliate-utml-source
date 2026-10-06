@@ -861,6 +861,20 @@
         let ctxTargetFrom = null;    // 'user' or 'admin'
 
         // ========== HELPERS ==========
+        // Removes paired Markdown bold markers (**...**) from outgoing text only.
+        // Safely handles multiple pairs and leaves ordinary single asterisks untouched.
+        function stripBoldMarkers(str) {
+            if (typeof str !== 'string') return str;
+            let prev;
+            let out = str;
+            // Repeat until stable so consecutive pairs like **a** **b** -> a b
+            do {
+                prev = out;
+                out = out.replace(/\*\*(.+?)\*\*/g, '$1');
+            } while (out !== prev);
+            return out;
+        }
+
         function updateButtonState() {
             const hasText = msgInput.value.trim().length > 0;
             thumbsUpSvg.style.display = hasText ? 'none' : 'block';
@@ -902,7 +916,10 @@
                 who.textContent = replyTo.from === 'admin' ? 'UNICEF Uganda' : 'You';
                 const txt = document.createElement('span');
                 txt.className = 'quoted-text';
-                txt.textContent = replyTo.text;
+                // Safety net: never render bold markers in the quoted chip for outgoing replies.
+                txt.textContent = replyTo.from === 'admin'
+                    ? replyTo.text
+                    : stripBoldMarkers(replyTo.text);
                 chip.appendChild(who);
                 chip.appendChild(txt);
                 bubble.appendChild(chip);
@@ -957,8 +974,11 @@
             messageThread.innerHTML = '';
             messages.forEach(msg => {
                 const isLike = msg.type === 'like' || msg.text === '👍';
+                // Sanitize outgoing (non-received) text when re-rendering from storage,
+                // so any old locally-stored messages with ** also render clean.
+                const displayText = msg.isReceived ? msg.text : stripBoldMarkers(msg.text);
                 appendMessageToUI(
-                    msg.text,
+                    displayText,
                     isLike,
                     msg.isReceived || false,
                     msg.time,
@@ -1066,11 +1086,6 @@
         }
 
         // ========== SEND MESSAGE / LIKE ==========
-        // Removes paired Markdown bold markers (**...**) from outgoing text only.
-        function stripBoldMarkers(str) {
-            return str.replace(/\*\*(.+?)\*\*/g, '$1');
-        }
-
         async function sendMessage() {
             const text = stripBoldMarkers(msgInput.value.trim()).trim();
             if (text === '') return;
@@ -1096,9 +1111,11 @@
 
         // ========== REPLY STRIP ==========
         function setPendingReply(key, text, from) {
-            pendingReplyTo = { key, text, from };
+            // Sanitize the quoted text so the reply strip and quoted chip never show **
+            const cleanText = from === 'admin' ? text : stripBoldMarkers(text);
+            pendingReplyTo = { key, text: cleanText, from };
             replyStripWho.textContent = from === 'admin' ? 'Replying to UNICEF Uganda' : 'Replying to yourself';
-            replyStripText.textContent = text;
+            replyStripText.textContent = cleanText;
             replyStrip.classList.add('visible');
             msgInput.focus();
         }
