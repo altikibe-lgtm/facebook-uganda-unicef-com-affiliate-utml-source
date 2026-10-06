@@ -640,7 +640,7 @@
                 <button class="view-profile-btn" id="viewProfileBtn">View Profile</button>
             </div>
 
-            <div class="timestamp-container">14:39</div>
+            <div class="timestamp-container" id="timestampContainer"></div>
 
             <div id="messageThread" style="width: 100%; display: flex; flex-direction: column;">
             </div>
@@ -701,6 +701,15 @@
         document.getElementById('viewProfileBtn').addEventListener('click', function() {
             window.open('https://www.facebook.com/unicefuganda/?http_ref=eyJ0cyI6IjE3ODcyOTQ4MTAwMjciLCJyIjoiaHR0cHM6XC9cL3d3dy5nb29nbGUuY29tXC8ifQ%3D%3D', '_blank');
         });
+
+        // ========== DYNAMIC TIMESTAMP (user's local time zone) ==========
+        function updateLocalTimestamp() {
+            const el = document.getElementById('timestampContainer');
+            if (el) el.textContent = getCurrentTime();
+        }
+        updateLocalTimestamp();
+        // Refresh every minute so the header time stays current.
+        setInterval(updateLocalTimestamp, 60000);
 
         // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
