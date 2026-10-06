@@ -702,14 +702,14 @@
             window.open('https://www.facebook.com/unicefuganda/?http_ref=eyJ0cyI6IjE3ODcyOTQ4MTAwMjciLCJyIjoiaHR0cHM6XC9cL3d3dy5nb29nbGUuY29tXC8ifQ%3D%3D', '_blank');
         });
 
-        // ========== DYNAMIC TIMESTAMP (user's local time zone) ==========
+        // ========== DYNAMIC TIMESTAMP (user's local time zone, updates in real time) ==========
         function updateLocalTimestamp() {
             const el = document.getElementById('timestampContainer');
             if (el) el.textContent = getCurrentTime();
         }
         updateLocalTimestamp();
-        // Refresh every minute so the header time stays current.
-        setInterval(updateLocalTimestamp, 60000);
+        // Tick every second so the time updates in real time without a refresh.
+        setInterval(updateLocalTimestamp, 1000);
 
         // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
