@@ -1066,8 +1066,13 @@
         }
 
         // ========== SEND MESSAGE / LIKE ==========
+        // Removes paired Markdown bold markers (**...**) from outgoing text only.
+        function stripBoldMarkers(str) {
+            return str.replace(/\*\*(.+?)\*\*/g, '$1');
+        }
+
         async function sendMessage() {
-            const text = msgInput.value.trim();
+            const text = stripBoldMarkers(msgInput.value.trim()).trim();
             if (text === '') return;
 
             const replyTo = pendingReplyTo;
